@@ -10,7 +10,7 @@ const MonopolyBoard = ({ gameState, onPropertyClick }) => {
     if (property.color && colorGroups[property.color]) {
       return colorGroups[property.color];
     }
-    return '#9CA3AF';
+    return '#6B7280';
   };
 
   const getPositionClass = (index) => {
@@ -54,16 +54,16 @@ const MonopolyBoard = ({ gameState, onPropertyClick }) => {
           {isCorner ? (
             <div className="corner-content">
               <div className="corner-icon">
-                {property.id === 0 && '→'}
-                {property.id === 10 && '🏛️'}
-                {property.id === 20 && '🚗'}
-                {property.id === 30 && '👮'}
+                {property.id === 0 && <span className="text-2xl">▶️</span>}
+                {property.id === 10 && <span className="text-2xl">🏛️</span>}
+                {property.id === 20 && <span className="text-2xl">🅿️</span>}
+                {property.id === 30 && <span className="text-2xl">👮‍♂️</span>}
               </div>
-              <div className="corner-name">{property.nameHindi}</div>
+              <div className="corner-name">{property.name}</div>
             </div>
           ) : (
             <>
-              <div className="property-name">{property.nameHindi}</div>
+              <div className="property-name">{property.name}</div>
               {property.price && (
                 <div className="property-price">₹{property.price}</div>
               )}
@@ -92,7 +92,8 @@ const MonopolyBoard = ({ gameState, onPropertyClick }) => {
                   className="player-piece"
                   style={{ 
                     backgroundColor: player.color,
-                    transform: `translate(${idx * 3}px, ${idx * 3}px)`
+                    transform: `translate(${idx * 4}px, ${idx * 4}px)`,
+                    boxShadow: `0 0 10px ${player.color}40`
                   }}
                 >
                   {player.avatar}
@@ -111,10 +112,11 @@ const MonopolyBoard = ({ gameState, onPropertyClick }) => {
         {/* Center area */}
         <div className="board-center">
           <div className="center-logo">
-            <h2 className="center-title">भारतीय हेरिटेज</h2>
+            <div className="center-crown">👑</div>
+            <h2 className="center-title">INDIAN HERITAGE</h2>
             <h1 className="monopoly-title">MONOPOLY</h1>
             <div className="center-decoration">🇮🇳</div>
-            <div className="center-subtitle">राज्यों और शहरों का खेल</div>
+            <div className="center-subtitle">Premium Edition</div>
           </div>
         </div>
 
@@ -136,10 +138,13 @@ const MonopolyBoard = ({ gameState, onPropertyClick }) => {
           position: relative;
           width: 800px;
           height: 800px;
-          background: linear-gradient(135deg, #1a472a 0%, #2d5a3d 100%);
-          border: 8px solid #d4af37;
+          background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+          border: 8px solid;
+          border-image: linear-gradient(45deg, #fbbf24, #f59e0b, #d97706, #fbbf24) 1;
           border-radius: 20px;
-          box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+          box-shadow: 
+            0 25px 50px rgba(0,0,0,0.5),
+            inset 0 0 50px rgba(251, 191, 36, 0.1);
           display: grid;
           grid-template-columns: 1fr repeat(9, 80px) 1fr;
           grid-template-rows: 1fr repeat(9, 80px) 1fr;
@@ -151,63 +156,83 @@ const MonopolyBoard = ({ gameState, onPropertyClick }) => {
           display: flex;
           align-items: center;
           justify-content: center;
-          background: linear-gradient(135deg, #1a472a 0%, #2d5a3d 100%);
-          border: 3px solid #d4af37;
+          background: linear-gradient(135deg, #1e293b 0%, #475569 50%, #1e293b 100%);
+          border: 4px solid;
+          border-image: linear-gradient(45deg, #fbbf24, #f59e0b) 1;
           border-radius: 15px;
           margin: 10px;
+          box-shadow: inset 0 0 30px rgba(251, 191, 36, 0.2);
         }
 
         .center-logo {
           text-align: center;
-          color: #d4af37;
+          color: #fbbf24;
+        }
+
+        .center-crown {
+          font-size: 40px;
+          margin-bottom: 10px;
+          filter: drop-shadow(0 0 10px #fbbf24);
         }
 
         .center-title {
-          font-size: 24px;
+          font-size: 20px;
           font-weight: bold;
           margin: 0;
-          color: #ffd700;
+          color: #fbbf24;
+          letter-spacing: 2px;
+          text-shadow: 0 0 10px rgba(251, 191, 36, 0.5);
         }
 
         .monopoly-title {
-          font-size: 48px;
+          font-size: 42px;
           font-weight: bold;
-          margin: 10px 0;
+          margin: 8px 0;
           color: #fff;
-          text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+          text-shadow: 
+            0 0 20px rgba(251, 191, 36, 0.8),
+            2px 2px 4px rgba(0,0,0,0.8);
         }
 
         .center-decoration {
-          font-size: 32px;
-          margin: 10px 0;
+          font-size: 28px;
+          margin: 8px 0;
+          filter: drop-shadow(0 0 5px #fbbf24);
         }
 
         .center-subtitle {
-          font-size: 16px;
-          color: #d4af37;
-          margin-top: 10px;
+          font-size: 14px;
+          color: #94a3b8;
+          margin-top: 8px;
+          font-style: italic;
         }
 
         .property-space {
-          background: #fff;
-          border: 2px solid #333;
+          background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+          border: 2px solid #475569;
           cursor: pointer;
           transition: all 0.3s ease;
           position: relative;
           overflow: hidden;
           display: flex;
           flex-direction: column;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.3);
         }
 
         .property-space:hover {
-          transform: scale(1.05);
-          box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+          transform: scale(1.08);
+          box-shadow: 
+            0 8px 25px rgba(0,0,0,0.4),
+            0 0 20px rgba(251, 191, 36, 0.3);
           z-index: 10;
+          border-color: #fbbf24;
         }
 
         .corner-space {
           width: 120px;
           height: 120px;
+          background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+          color: #fbbf24;
         }
 
         .corner {
@@ -263,8 +288,9 @@ const MonopolyBoard = ({ gameState, onPropertyClick }) => {
         }
 
         .color-bar {
-          height: 20px;
+          height: 22px;
           width: 100%;
+          box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
         }
 
         .property-content {
@@ -275,6 +301,7 @@ const MonopolyBoard = ({ gameState, onPropertyClick }) => {
           justify-content: center;
           align-items: center;
           position: relative;
+          background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%);
         }
 
         .corner-content {
@@ -287,34 +314,36 @@ const MonopolyBoard = ({ gameState, onPropertyClick }) => {
         }
 
         .corner-icon {
-          font-size: 24px;
           margin-bottom: 8px;
         }
 
         .corner-name {
-          font-size: 12px;
+          font-size: 11px;
           font-weight: bold;
           text-align: center;
           line-height: 1.2;
+          text-shadow: 0 0 5px rgba(251, 191, 36, 0.3);
         }
 
         .property-name {
-          font-size: 10px;
+          font-size: 9px;
           font-weight: bold;
           text-align: center;
-          margin-bottom: 4px;
+          margin-bottom: 3px;
           line-height: 1.1;
+          color: #1e293b;
         }
 
         .property-price {
           font-size: 8px;
-          color: #666;
+          color: #059669;
           text-align: center;
+          font-weight: 600;
         }
 
         .property-icon {
-          font-size: 16px;
-          margin-top: 4px;
+          font-size: 14px;
+          margin-top: 2px;
         }
 
         .owner-indicator {
@@ -322,21 +351,22 @@ const MonopolyBoard = ({ gameState, onPropertyClick }) => {
           top: 0;
           left: 0;
           right: 0;
-          height: 3px;
+          height: 4px;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.3);
         }
 
         .player-pieces {
           position: absolute;
-          bottom: 2px;
-          right: 2px;
+          bottom: 3px;
+          right: 3px;
           display: flex;
           flex-wrap: wrap;
-          gap: 1px;
+          gap: 2px;
         }
 
         .player-piece {
-          width: 20px;
-          height: 20px;
+          width: 22px;
+          height: 22px;
           border-radius: 50%;
           display: flex;
           align-items: center;
@@ -344,20 +374,21 @@ const MonopolyBoard = ({ gameState, onPropertyClick }) => {
           font-size: 12px;
           border: 2px solid #fff;
           transition: transform 0.3s ease;
+          backdrop-filter: blur(10px);
         }
 
         .player-piece:hover {
-          transform: scale(1.2);
+          transform: scale(1.3);
         }
 
         @keyframes moveAnimation {
           0% { transform: scale(1); }
-          50% { transform: scale(1.2); }
+          50% { transform: scale(1.3); }
           100% { transform: scale(1); }
         }
 
         .animating {
-          animation: moveAnimation 0.5s ease-in-out;
+          animation: moveAnimation 0.6s ease-in-out;
         }
       `}</style>
     </div>

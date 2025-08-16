@@ -3,7 +3,7 @@ import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
-import { Users, Copy, Share2, Play, Settings } from 'lucide-react';
+import { Users, Copy, Share2, Play, Settings, Crown, Sparkles } from 'lucide-react';
 import { useToast } from '../hooks/use-toast';
 
 const GameLobby = ({ onStartGame, onJoinGame, gameMode, setGameMode }) => {
@@ -15,12 +15,12 @@ const GameLobby = ({ onStartGame, onJoinGame, gameMode, setGameMode }) => {
 
   // Mock data for demonstration
   const mockRoomData = {
-    code: 'DELHI2024',
-    host: 'राज Kumar',
+    code: 'HERITAGE2024',
+    host: 'Raj Kumar',
     players: [
-      { id: 1, name: 'राज Kumar', avatar: '🤴', ready: true, isHost: true },
-      { id: 2, name: 'प्रिया Singh', avatar: '👸', ready: true, isHost: false },
-      { id: 3, name: 'अमित Sharma', avatar: '🧔', ready: false, isHost: false }
+      { id: 1, name: 'Raj Kumar', avatar: '👑', ready: true, isHost: true },
+      { id: 2, name: 'Priya Singh', avatar: '💎', ready: true, isHost: false },
+      { id: 3, name: 'Amit Sharma', avatar: '🎭', ready: false, isHost: false }
     ],
     maxPlayers: 6,
     settings: {
@@ -30,13 +30,13 @@ const GameLobby = ({ onStartGame, onJoinGame, gameMode, setGameMode }) => {
     }
   };
 
-  const avatars = ['🤴', '👸', '🧔', '👨‍🎓', '👩‍💼', '🧑‍🚀', '👨‍🎨', '👩‍🔬'];
+  const avatars = ['👑', '💎', '🎭', '🏆', '⭐', '🌟', '💫', '🔥'];
 
   const createRoom = () => {
     if (!playerName.trim()) {
       toast({
-        title: "नाम आवश्यक है",
-        description: "कृपया अपना नाम दर्ज करें",
+        title: "Name Required",
+        description: "Please enter your name to continue",
         variant: "destructive"
       });
       return;
@@ -56,8 +56,8 @@ const GameLobby = ({ onStartGame, onJoinGame, gameMode, setGameMode }) => {
         },
         { 
           id: 2, 
-          name: 'प्रिया Singh', 
-          avatar: '👸', 
+          name: 'Priya Singh', 
+          avatar: '💎', 
           ready: true, 
           isHost: false 
         }
@@ -68,7 +68,7 @@ const GameLobby = ({ onStartGame, onJoinGame, gameMode, setGameMode }) => {
     setMockPlayers(newRoom.players);
     
     toast({
-      title: "रूम बनाया गया!",
+      title: "Room Created Successfully!",
       description: `Room Code: ${newRoom.code}`,
     });
   };
@@ -76,8 +76,8 @@ const GameLobby = ({ onStartGame, onJoinGame, gameMode, setGameMode }) => {
   const joinRoom = () => {
     if (!playerName.trim() || !roomCode.trim()) {
       toast({
-        title: "विवरण आवश्यक है",
-        description: "कृपया नाम और रूम कोड दर्ज करें",
+        title: "Details Required",
+        description: "Please enter your name and room code",
         variant: "destructive"
       });
       return;
@@ -102,8 +102,8 @@ const GameLobby = ({ onStartGame, onJoinGame, gameMode, setGameMode }) => {
     setMockPlayers(joinedRoom.players);
     
     toast({
-      title: "रूम में शामिल हुए!",
-      description: `${roomCode} रूम में सफलतापूर्वक शामिल हुए`,
+      title: "Joined Room Successfully!",
+      description: `Welcome to room ${roomCode}`,
     });
   };
 
@@ -111,8 +111,8 @@ const GameLobby = ({ onStartGame, onJoinGame, gameMode, setGameMode }) => {
     if (currentRoom) {
       navigator.clipboard.writeText(currentRoom.code);
       toast({
-        title: "कॉपी किया गया!",
-        description: "रूम कोड क्लिपबोर्ड में कॉपी हो गया",
+        title: "Code Copied!",
+        description: "Room code copied to clipboard",
       });
     }
   };
@@ -135,52 +135,67 @@ const GameLobby = ({ onStartGame, onJoinGame, gameMode, setGameMode }) => {
 
   if (currentRoom) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-orange-50 to-green-50 p-4">
-        <div className="max-w-4xl mx-auto">
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-6">
+        <div className="max-w-6xl mx-auto">
           <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold text-orange-800 mb-2">🇮🇳 भारतीय हेरिटेज मोनोपली</h1>
-            <p className="text-green-700">खेल लॉबी</p>
+            <div className="flex items-center justify-center gap-3 mb-4">
+              <Crown className="w-10 h-10 text-amber-400" />
+              <h1 className="text-5xl font-bold bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 bg-clip-text text-transparent">
+                Indian Heritage Monopoly
+              </h1>
+              <Crown className="w-10 h-10 text-amber-400" />
+            </div>
+            <div className="flex items-center justify-center gap-2">
+              <Sparkles className="w-5 h-5 text-purple-400" />
+              <p className="text-xl text-purple-200 font-light">Premium Edition</p>
+              <Sparkles className="w-5 h-5 text-purple-400" />
+            </div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Room Info */}
-            <Card className="lg:col-span-2">
+            <Card className="lg:col-span-2 bg-gradient-to-br from-slate-800/80 to-purple-900/80 border-amber-500/30 backdrop-blur-sm shadow-2xl">
               <CardHeader>
-                <CardTitle className="flex items-center justify-between">
-                  <span>रूम: {currentRoom.code}</span>
+                <CardTitle className="flex items-center justify-between text-amber-100">
+                  <span className="text-2xl font-bold">Room: {currentRoom.code}</span>
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={copyRoomCode}
-                    className="flex items-center gap-2"
+                    className="flex items-center gap-2 border-amber-500/50 text-amber-300 hover:bg-amber-500/20"
                   >
                     <Copy className="w-4 h-4" />
-                    कॉपी करें
+                    Copy Code
                   </Button>
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
                   {mockPlayers.map((player) => (
                     <div
                       key={player.id}
-                      className={`p-4 rounded-lg border-2 transition-all ${
+                      className={`p-6 rounded-xl border-2 transition-all duration-300 ${
                         player.ready 
-                          ? 'border-green-500 bg-green-50' 
-                          : 'border-orange-500 bg-orange-50'
+                          ? 'border-emerald-400 bg-gradient-to-br from-emerald-500/20 to-emerald-600/20 shadow-emerald-500/20 shadow-lg' 
+                          : 'border-amber-400 bg-gradient-to-br from-amber-500/20 to-amber-600/20 shadow-amber-500/20 shadow-lg'
                       }`}
                     >
                       <div className="text-center">
-                        <div className="text-3xl mb-2">{player.avatar}</div>
-                        <div className="font-semibold text-sm">{player.name}</div>
+                        <div className="text-4xl mb-3">{player.avatar}</div>
+                        <div className="font-bold text-white text-lg mb-2">{player.name}</div>
                         {player.isHost && (
-                          <Badge variant="secondary" className="mt-1">होस्ट</Badge>
+                          <Badge className="mb-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white border-0">
+                            Host
+                          </Badge>
                         )}
                         <Badge 
-                          variant={player.ready ? "default" : "outline"}
-                          className="mt-1"
+                          className={`${
+                            player.ready 
+                              ? "bg-gradient-to-r from-emerald-500 to-emerald-600" 
+                              : "bg-gradient-to-r from-slate-500 to-slate-600"
+                          } text-white border-0`}
                         >
-                          {player.ready ? 'तैयार' : 'प्रतीक्षा में'}
+                          {player.ready ? 'Ready' : 'Waiting'}
                         </Badge>
                       </div>
                     </div>
@@ -190,11 +205,11 @@ const GameLobby = ({ onStartGame, onJoinGame, gameMode, setGameMode }) => {
                   {Array.from({ length: currentRoom.maxPlayers - mockPlayers.length }).map((_, index) => (
                     <div
                       key={`empty-${index}`}
-                      className="p-4 rounded-lg border-2 border-dashed border-gray-300 bg-gray-50"
+                      className="p-6 rounded-xl border-2 border-dashed border-slate-500 bg-gradient-to-br from-slate-700/30 to-slate-800/30"
                     >
-                      <div className="text-center text-gray-400">
-                        <Users className="w-8 h-8 mx-auto mb-2" />
-                        <div className="text-xs">खाली स्लॉट</div>
+                      <div className="text-center text-slate-400">
+                        <Users className="w-10 h-10 mx-auto mb-3" />
+                        <div className="text-sm font-medium">Empty Slot</div>
                       </div>
                     </div>
                   ))}
@@ -203,63 +218,80 @@ const GameLobby = ({ onStartGame, onJoinGame, gameMode, setGameMode }) => {
             </Card>
 
             {/* Controls */}
-            <Card>
+            <Card className="bg-gradient-to-br from-slate-800/80 to-purple-900/80 border-amber-500/30 backdrop-blur-sm shadow-2xl">
               <CardHeader>
-                <CardTitle>नियंत्रण</CardTitle>
+                <CardTitle className="text-amber-100 text-xl font-bold">Game Controls</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <Button
                   onClick={toggleReady}
-                  variant={mockPlayers.find(p => p.name === playerName)?.ready ? "default" : "outline"}
-                  className="w-full"
+                  className={`w-full text-lg py-6 font-bold ${
+                    mockPlayers.find(p => p.name === playerName)?.ready 
+                      ? "bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700" 
+                      : "bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700"
+                  } shadow-lg`}
                 >
-                  {mockPlayers.find(p => p.name === playerName)?.ready ? 'तैयार ✓' : 'तैयार होें'}
+                  {mockPlayers.find(p => p.name === playerName)?.ready ? '✓ Ready' : 'Get Ready'}
                 </Button>
 
                 {isHost && (
                   <Button
                     onClick={startGame}
                     disabled={!allReady}
-                    className="w-full bg-green-600 hover:bg-green-700"
+                    className="w-full text-lg py-6 font-bold bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 shadow-lg disabled:opacity-50"
                   >
-                    <Play className="w-4 h-4 mr-2" />
-                    खेल शुरू करें
+                    <Play className="w-5 h-5 mr-2" />
+                    Start Game
                   </Button>
                 )}
 
-                <div className="text-sm text-gray-600 space-y-2">
-                  <div><strong>खिलाड़ी:</strong> {mockPlayers.length}/{currentRoom.maxPlayers}</div>
-                  <div><strong>प्रारंभिक राशि:</strong> ₹{currentRoom.settings.startingMoney.toLocaleString()}</div>
-                  <div><strong>घर सीमा:</strong> {currentRoom.settings.houseLimit}</div>
+                <div className="bg-slate-700/50 rounded-lg p-4 space-y-3 text-slate-200">
+                  <div className="flex justify-between">
+                    <span className="font-medium">Players:</span>
+                    <span className="text-amber-300">{mockPlayers.length}/{currentRoom.maxPlayers}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="font-medium">Starting Money:</span>
+                    <span className="text-emerald-300">₹{currentRoom.settings.startingMoney.toLocaleString()}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="font-medium">House Limit:</span>
+                    <span className="text-blue-300">{currentRoom.settings.houseLimit}</span>
+                  </div>
                 </div>
 
                 <Button
                   variant="outline"
                   onClick={() => setCurrentRoom(null)}
-                  className="w-full"
+                  className="w-full border-red-500/50 text-red-300 hover:bg-red-500/20"
                 >
-                  रूम छोड़ें
+                  Leave Room
                 </Button>
               </CardContent>
             </Card>
           </div>
 
           {/* Chat Section */}
-          <Card className="mt-6">
+          <Card className="mt-8 bg-gradient-to-br from-slate-800/80 to-purple-900/80 border-amber-500/30 backdrop-blur-sm shadow-2xl">
             <CardHeader>
-              <CardTitle>चैट</CardTitle>
+              <CardTitle className="text-amber-100 text-xl font-bold">Game Chat</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="h-32 bg-gray-50 rounded p-3 mb-3 overflow-y-auto">
-                <div className="text-sm text-gray-600 space-y-1">
-                  <div><strong>System:</strong> {playerName} रूम में शामिल हुए</div>
-                  <div><strong>राज Kumar:</strong> नमस्ते सभी! खेल का आनंद लें 🎲</div>
-                  <div><strong>प्रिया Singh:</strong> बहुत बढ़िया! मैं तैयार हूँ 🇮🇳</div>
+              <div className="h-40 bg-slate-700/30 rounded-lg p-4 mb-4 overflow-y-auto">
+                <div className="text-sm text-slate-300 space-y-2">
+                  <div><strong className="text-amber-300">System:</strong> {playerName} joined the room</div>
+                  <div><strong className="text-purple-300">Raj Kumar:</strong> Welcome everyone! Let's have a great game 🎲</div>
+                  <div><strong className="text-pink-300">Priya Singh:</strong> Looking forward to this! 🇮🇳</div>
                 </div>
               </div>
-              <div className="flex gap-2">
-                <Input placeholder="संदेश टाइप करें..." className="flex-1" />
-                <Button size="sm">भेजें</Button>
+              <div className="flex gap-3">
+                <Input 
+                  placeholder="Type your message..." 
+                  className="flex-1 bg-slate-700/50 border-slate-600 text-white placeholder-slate-400"
+                />
+                <Button className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600">
+                  Send
+                </Button>
               </div>
             </CardContent>
           </Card>
@@ -269,82 +301,105 @@ const GameLobby = ({ onStartGame, onJoinGame, gameMode, setGameMode }) => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-green-50 p-4">
-      <div className="max-w-2xl mx-auto">
-        <div className="text-center mb-8">
-          <h1 className="text-5xl font-bold text-orange-800 mb-4">🇮🇳 भारतीय हेरिटेज मोनोपली</h1>
-          <p className="text-xl text-green-700 mb-2">भारत के राज्यों और शहरों के साथ खेलें</p>
-          <p className="text-gray-600">ऑनलाइन मल्टीप्लेयर गेम</p>
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-6">
+      <div className="max-w-4xl mx-auto">
+        <div className="text-center mb-12">
+          <div className="flex items-center justify-center gap-4 mb-6">
+            <Crown className="w-12 h-12 text-amber-400" />
+            <h1 className="text-6xl font-bold bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 bg-clip-text text-transparent">
+              Indian Heritage Monopoly
+            </h1>
+            <Crown className="w-12 h-12 text-amber-400" />
+          </div>
+          <div className="flex items-center justify-center gap-2 mb-4">
+            <Sparkles className="w-6 h-6 text-purple-400" />
+            <p className="text-2xl text-purple-200 font-light">Premium Edition</p>
+            <Sparkles className="w-6 h-6 text-purple-400" />
+          </div>
+          <p className="text-lg text-slate-300">Experience the luxury of Indian states and cities</p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {/* Create Room */}
-          <Card>
+          <Card className="bg-gradient-to-br from-slate-800/80 to-purple-900/80 border-amber-500/30 backdrop-blur-sm shadow-2xl">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Settings className="w-5 h-5" />
-                नया रूम बनाएं
+              <CardTitle className="flex items-center gap-3 text-amber-100 text-xl">
+                <Settings className="w-6 h-6 text-amber-400" />
+                Create New Room
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-6">
               <Input
-                placeholder="आपका नाम"
+                placeholder="Enter your name"
                 value={playerName}
                 onChange={(e) => setPlayerName(e.target.value)}
+                className="bg-slate-700/50 border-slate-600 text-white placeholder-slate-400 text-lg py-6"
               />
-              <Button onClick={createRoom} className="w-full bg-orange-600 hover:bg-orange-700">
-                रूम बनाएं
+              <Button 
+                onClick={createRoom} 
+                className="w-full text-lg py-6 font-bold bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 shadow-lg"
+              >
+                Create Room
               </Button>
             </CardContent>
           </Card>
 
           {/* Join Room */}
-          <Card>
+          <Card className="bg-gradient-to-br from-slate-800/80 to-purple-900/80 border-amber-500/30 backdrop-blur-sm shadow-2xl">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Share2 className="w-5 h-5" />
-                रूम में शामिल हों
+              <CardTitle className="flex items-center gap-3 text-amber-100 text-xl">
+                <Share2 className="w-6 h-6 text-amber-400" />
+                Join Existing Room
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-6">
               <Input
-                placeholder="आपका नाम"
+                placeholder="Enter your name"
                 value={playerName}
                 onChange={(e) => setPlayerName(e.target.value)}
+                className="bg-slate-700/50 border-slate-600 text-white placeholder-slate-400 text-lg py-6"
               />
               <Input
-                placeholder="रूम कोड"
+                placeholder="Enter room code"
                 value={roomCode}
                 onChange={(e) => setRoomCode(e.target.value.toUpperCase())}
+                className="bg-slate-700/50 border-slate-600 text-white placeholder-slate-400 text-lg py-6"
               />
-              <Button onClick={joinRoom} className="w-full bg-green-600 hover:bg-green-700">
-                शामिल हों
+              <Button 
+                onClick={joinRoom} 
+                className="w-full text-lg py-6 font-bold bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 shadow-lg"
+              >
+                Join Room
               </Button>
             </CardContent>
           </Card>
         </div>
 
-        <Card className="mt-8">
+        <Card className="mt-12 bg-gradient-to-br from-slate-800/80 to-purple-900/80 border-amber-500/30 backdrop-blur-sm shadow-2xl">
           <CardHeader>
-            <CardTitle>खेल की विशेषताएं</CardTitle>
+            <CardTitle className="text-amber-100 text-2xl font-bold text-center">Premium Features</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-              <div>
-                <div className="text-2xl mb-2">🎲</div>
-                <div className="text-sm font-semibold">एनिमेटेड डाइस</div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+              <div className="space-y-3">
+                <div className="text-4xl">🎲</div>
+                <div className="text-lg font-bold text-white">Animated Dice</div>
+                <div className="text-sm text-slate-300">Realistic rolling physics</div>
               </div>
-              <div>
-                <div className="text-2xl mb-2">🏠</div>
-                <div className="text-sm font-semibold">संपत्ति प्रबंधन</div>
+              <div className="space-y-3">
+                <div className="text-4xl">🏰</div>
+                <div className="text-lg font-bold text-white">Property Empire</div>
+                <div className="text-sm text-slate-300">Build your Indian legacy</div>
               </div>
-              <div>
-                <div className="text-2xl mb-2">🤝</div>
-                <div className="text-sm font-semibold">ट्रेडिंग सिस्टम</div>
+              <div className="space-y-3">
+                <div className="text-4xl">🤝</div>
+                <div className="text-lg font-bold text-white">Smart Trading</div>
+                <div className="text-sm text-slate-300">Advanced negotiation system</div>
               </div>
-              <div>
-                <div className="text-2xl mb-2">🎭</div>
-                <div className="text-sm font-semibold">भारतीय कार्ड</div>
+              <div className="space-y-3">
+                <div className="text-4xl">🎭</div>
+                <div className="text-lg font-bold text-white">Cultural Cards</div>
+                <div className="text-sm text-slate-300">Authentic Indian themes</div>
               </div>
             </div>
           </CardContent>
