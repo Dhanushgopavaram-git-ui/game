@@ -42,17 +42,26 @@ const GameLobby = ({ onStartGame, onJoinGame, gameMode, setGameMode }) => {
       return;
     }
 
-    // Mock room creation
+    // Mock room creation with AI players
     const newRoom = {
       ...mockRoomData,
       host: playerName,
-      players: [{ 
-        id: 1, 
-        name: playerName, 
-        avatar: avatars[Math.floor(Math.random() * avatars.length)], 
-        ready: true, 
-        isHost: true 
-      }]
+      players: [
+        { 
+          id: 1, 
+          name: playerName, 
+          avatar: avatars[Math.floor(Math.random() * avatars.length)], 
+          ready: true, 
+          isHost: true 
+        },
+        { 
+          id: 2, 
+          name: 'प्रिया Singh', 
+          avatar: '👸', 
+          ready: true, 
+          isHost: false 
+        }
+      ]
     };
     
     setCurrentRoom(newRoom);
