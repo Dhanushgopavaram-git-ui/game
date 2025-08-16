@@ -6,31 +6,94 @@ import { Badge } from './ui/badge';
 import { Users, Copy, Share2, Play, Settings, Crown, Sparkles } from 'lucide-react';
 import { useToast } from '../hooks/use-toast';
 
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+
 const GameLobby = ({ onStartGame, onJoinGame, gameMode, setGameMode }) => {
   const [roomCode, setRoomCode] = useState('');
   const [playerName, setPlayerName] = useState('');
   const [currentRoom, setCurrentRoom] = useState(null);
-  const [mockPlayers, setMockPlayers] = useState([]);
+  const [currentPlayer, setCurrentPlayer] = useState(null);
+  const [ws, setWs] = useState(null);
+  const [connected, setConnected] = useState(false);
   const { toast } = useToast();
 
-  // Mock data for demonstration
-  const mockRoomData = {
-    code: 'HERITAGE2024',
-    host: 'Raj Kumar',
-    players: [
-      { id: 1, name: 'Raj Kumar', avatar: '👑', ready: true, isHost: true },
-      { id: 2, name: 'Priya Singh', avatar: '💎', ready: true, isHost: false },
-      { id: 3, name: 'Amit Sharma', avatar: '🎭', ready: false, isHost: false }
-    ],
-    maxPlayers: 6,
-    settings: {
-      startingMoney: 15000,
-      houseLimit: 32,
-      hotelLimit: 12
-    }
+  const avatars = ['👑', '💎', '🎭', '🏆', '⭐', '🌟', '💫', '🔥'];
+
+  useEffect(() => {
+    return () => {
+      if (ws) {
+        ws.close();
+      }
+    };
+  }, [ws]);
+
+  const connectWebSocket = (roomCode, playerId) => {
+    const wsUrl = `${BACKEND_URL.replace('http', 'ws')}/ws/${roomCode}/${playerId}`;
+    const websocket = new WebSocket(wsUrl);
+    
+    websocket.onopen = () => {
+      console.log('WebSocket connected');
+      setConnected(true);
+      setWs(websocket);
+    };
+
+    websocket.onmessage = (event) => {
+      const message = JSON.parse(event.data);
+      handleWebSocketMessage(message);
+    };
+
+    websocket.onclose = () => {
+      console.log('WebSocket disconnected');
+      setConnected(false);
+      setWs(null);
+    };
+
+    websocket.onerror = (error) => {
+      console.error('WebSocket error:', error);
+      toast({
+        title: "Connection Error",
+        description: "Failed to connect to game server",
+        variant: "destructive"
+      });
+    };
+
+    return websocket;
   };
 
-  const avatars = ['👑', '💎', '🎭', '🏆', '⭐', '🌟', '💫', '🔥'];
+  const handleWebSocketMessage = (message) => {
+    console.log('Received message:', message);
+    
+    switch (message.type) {
+      case 'room-created':
+        setCurrentRoom(message.room);
+        setCurrentPlayer({ id: message.player_id });
+        toast({
+          title: "Room Created!",
+          description: `Room Code: ${message.room_code}`,
+        });
+        break;
+        
+      case 'player-joined':
+      case 'room-updated':
+        setCurrentRoom(message.room);
+        break;
+        
+      case 'game-started':
+        onStartGame(message.game_state);
+        break;
+        
+      case 'error':
+        toast({
+          title: "Error",
+          description: message.message,
+          variant: "destructive"
+        });
+        break;
+        
+      default:
+        console.log('Unhandled message type:', message.type);
+    }
+  };
 
   const createRoom = () => {
     if (!playerName.trim()) {
@@ -42,35 +105,26 @@ const GameLobby = ({ onStartGame, onJoinGame, gameMode, setGameMode }) => {
       return;
     }
 
-    // Mock room creation with AI players
-    const newRoom = {
-      ...mockRoomData,
-      host: playerName,
-      players: [
-        { 
-          id: 1, 
-          name: playerName, 
-          avatar: avatars[Math.floor(Math.random() * avatars.length)], 
-          ready: true, 
-          isHost: true 
-        },
-        { 
-          id: 2, 
-          name: 'Priya Singh', 
-          avatar: '💎', 
-          ready: true, 
-          isHost: false 
-        }
-      ]
+    // Create temporary WebSocket connection
+    const tempWs = new WebSocket(`${BACKEND_URL.replace('http', 'ws')}/ws/temp/temp`);
+    
+    tempWs.onopen = () => {
+      tempWs.send(JSON.stringify({
+        type: 'create-room',
+        player_name: playerName,
+        avatar: avatars[Math.floor(Math.random() * avatars.length)]
+      }));
     };
-    
-    setCurrentRoom(newRoom);
-    setMockPlayers(newRoom.players);
-    
-    toast({
-      title: "Room Created Successfully!",
-      description: `Room Code: ${newRoom.code}`,
-    });
+
+    tempWs.onmessage = (event) => {
+      const message = JSON.parse(event.data);
+      if (message.type === 'room-created') {
+        tempWs.close();
+        const websocket = connectWebSocket(message.room_code, message.player_id);
+        setCurrentRoom(message.room);
+        setCurrentPlayer({ id: message.player_id });
+      }
+    };
   };
 
   const joinRoom = () => {
@@ -83,28 +137,28 @@ const GameLobby = ({ onStartGame, onJoinGame, gameMode, setGameMode }) => {
       return;
     }
 
-    // Mock joining
-    const joinedRoom = {
-      ...mockRoomData,
-      players: [
-        ...mockRoomData.players,
-        { 
-          id: Date.now(), 
-          name: playerName, 
-          avatar: avatars[Math.floor(Math.random() * avatars.length)], 
-          ready: false, 
-          isHost: false 
-        }
-      ]
+    // Create temporary WebSocket connection
+    const tempWs = new WebSocket(`${BACKEND_URL.replace('http', 'ws')}/ws/temp/temp`);
+    
+    tempWs.onopen = () => {
+      tempWs.send(JSON.stringify({
+        type: 'join-room',
+        room_code: roomCode,
+        player_name: playerName,
+        avatar: avatars[Math.floor(Math.random() * avatars.length)]
+      }));
     };
-    
-    setCurrentRoom(joinedRoom);
-    setMockPlayers(joinedRoom.players);
-    
-    toast({
-      title: "Joined Room Successfully!",
-      description: `Welcome to room ${roomCode}`,
-    });
+
+    tempWs.onmessage = (event) => {
+      const message = JSON.parse(event.data);
+      if (message.type === 'player-joined') {
+        tempWs.close();
+        const playerId = message.player.id;
+        const websocket = connectWebSocket(roomCode, playerId);
+        setCurrentRoom(message.room);
+        setCurrentPlayer({ id: playerId });
+      }
+    };
   };
 
   const copyRoomCode = () => {
@@ -118,20 +172,30 @@ const GameLobby = ({ onStartGame, onJoinGame, gameMode, setGameMode }) => {
   };
 
   const toggleReady = () => {
-    // Mock ready toggle
-    setMockPlayers(prev => prev.map(player => 
-      player.name === playerName 
-        ? { ...player, ready: !player.ready }
-        : player
-    ));
+    if (ws && currentPlayer) {
+      ws.send(JSON.stringify({
+        type: 'player-ready',
+        ready: !getCurrentPlayerReadyStatus()
+      }));
+    }
   };
 
   const startGame = () => {
-    onStartGame();
+    if (ws && currentPlayer) {
+      ws.send(JSON.stringify({
+        type: 'start-game'
+      }));
+    }
   };
 
-  const isHost = currentRoom && mockPlayers.find(p => p.name === playerName)?.isHost;
-  const allReady = mockPlayers.length >= 2 && mockPlayers.every(p => p.ready);
+  const getCurrentPlayerReadyStatus = () => {
+    if (!currentRoom || !currentPlayer) return false;
+    const player = currentRoom.players.find(p => p.id === currentPlayer.id);
+    return player ? player.ready : false;
+  };
+
+  const isHost = currentRoom && currentPlayer && currentRoom.host_id === currentPlayer.id;
+  const allReady = currentRoom && currentRoom.players.length >= 2 && currentRoom.players.every(p => p.ready);
 
   if (currentRoom) {
     return (
@@ -158,20 +222,23 @@ const GameLobby = ({ onStartGame, onJoinGame, gameMode, setGameMode }) => {
               <CardHeader>
                 <CardTitle className="flex items-center justify-between text-amber-100">
                   <span className="text-2xl font-bold">Room: {currentRoom.code}</span>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={copyRoomCode}
-                    className="flex items-center gap-2 border-amber-500/50 text-amber-300 hover:bg-amber-500/20"
-                  >
-                    <Copy className="w-4 h-4" />
-                    Copy Code
-                  </Button>
+                  <div className="flex items-center gap-2">
+                    <div className={`w-3 h-3 rounded-full ${connected ? 'bg-green-400' : 'bg-red-400'}`}></div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={copyRoomCode}
+                      className="flex items-center gap-2 border-amber-500/50 text-amber-300 hover:bg-amber-500/20"
+                    >
+                      <Copy className="w-4 h-4" />
+                      Copy Code
+                    </Button>
+                  </div>
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
-                  {mockPlayers.map((player) => (
+                  {currentRoom.players.map((player) => (
                     <div
                       key={player.id}
                       className={`p-6 rounded-xl border-2 transition-all duration-300 ${
@@ -183,7 +250,7 @@ const GameLobby = ({ onStartGame, onJoinGame, gameMode, setGameMode }) => {
                       <div className="text-center">
                         <div className="text-4xl mb-3">{player.avatar}</div>
                         <div className="font-bold text-white text-lg mb-2">{player.name}</div>
-                        {player.isHost && (
+                        {player.is_host && (
                           <Badge className="mb-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white border-0">
                             Host
                           </Badge>
@@ -202,7 +269,7 @@ const GameLobby = ({ onStartGame, onJoinGame, gameMode, setGameMode }) => {
                   ))}
                   
                   {/* Empty slots */}
-                  {Array.from({ length: currentRoom.maxPlayers - mockPlayers.length }).map((_, index) => (
+                  {Array.from({ length: currentRoom.max_players - currentRoom.players.length }).map((_, index) => (
                     <div
                       key={`empty-${index}`}
                       className="p-6 rounded-xl border-2 border-dashed border-slate-500 bg-gradient-to-br from-slate-700/30 to-slate-800/30"
@@ -225,19 +292,20 @@ const GameLobby = ({ onStartGame, onJoinGame, gameMode, setGameMode }) => {
               <CardContent className="space-y-4">
                 <Button
                   onClick={toggleReady}
+                  disabled={!connected}
                   className={`w-full text-lg py-6 font-bold ${
-                    mockPlayers.find(p => p.name === playerName)?.ready 
+                    getCurrentPlayerReadyStatus() 
                       ? "bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700" 
                       : "bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700"
-                  } shadow-lg`}
+                  } shadow-lg disabled:opacity-50`}
                 >
-                  {mockPlayers.find(p => p.name === playerName)?.ready ? '✓ Ready' : 'Get Ready'}
+                  {getCurrentPlayerReadyStatus() ? '✓ Ready' : 'Get Ready'}
                 </Button>
 
                 {isHost && (
                   <Button
                     onClick={startGame}
-                    disabled={!allReady}
+                    disabled={!allReady || !connected}
                     className="w-full text-lg py-6 font-bold bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 shadow-lg disabled:opacity-50"
                   >
                     <Play className="w-5 h-5 mr-2" />
@@ -248,21 +316,27 @@ const GameLobby = ({ onStartGame, onJoinGame, gameMode, setGameMode }) => {
                 <div className="bg-slate-700/50 rounded-lg p-4 space-y-3 text-slate-200">
                   <div className="flex justify-between">
                     <span className="font-medium">Players:</span>
-                    <span className="text-amber-300">{mockPlayers.length}/{currentRoom.maxPlayers}</span>
+                    <span className="text-amber-300">{currentRoom.players.length}/{currentRoom.max_players}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="font-medium">Starting Money:</span>
-                    <span className="text-emerald-300">₹{currentRoom.settings.startingMoney.toLocaleString()}</span>
+                    <span className="text-emerald-300">₹{currentRoom.settings.starting_money.toLocaleString()}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="font-medium">House Limit:</span>
-                    <span className="text-blue-300">{currentRoom.settings.houseLimit}</span>
+                    <span className="font-medium">Status:</span>
+                    <span className={connected ? "text-emerald-300" : "text-red-300"}>
+                      {connected ? "Connected" : "Disconnected"}
+                    </span>
                   </div>
                 </div>
 
                 <Button
                   variant="outline"
-                  onClick={() => setCurrentRoom(null)}
+                  onClick={() => {
+                    if (ws) ws.close();
+                    setCurrentRoom(null);
+                    setCurrentPlayer(null);
+                  }}
                   className="w-full border-red-500/50 text-red-300 hover:bg-red-500/20"
                 >
                   Leave Room
@@ -271,27 +345,16 @@ const GameLobby = ({ onStartGame, onJoinGame, gameMode, setGameMode }) => {
             </Card>
           </div>
 
-          {/* Chat Section */}
+          {/* Real-time Status */}
           <Card className="mt-8 bg-gradient-to-br from-slate-800/80 to-purple-900/80 border-amber-500/30 backdrop-blur-sm shadow-2xl">
             <CardHeader>
-              <CardTitle className="text-amber-100 text-xl font-bold">Game Chat</CardTitle>
+              <CardTitle className="text-amber-100 text-xl font-bold">Live Updates</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="h-40 bg-slate-700/30 rounded-lg p-4 mb-4 overflow-y-auto">
-                <div className="text-sm text-slate-300 space-y-2">
-                  <div><strong className="text-amber-300">System:</strong> {playerName} joined the room</div>
-                  <div><strong className="text-purple-300">Raj Kumar:</strong> Welcome everyone! Let's have a great game 🎲</div>
-                  <div><strong className="text-pink-300">Priya Singh:</strong> Looking forward to this! 🇮🇳</div>
-                </div>
-              </div>
-              <div className="flex gap-3">
-                <Input 
-                  placeholder="Type your message..." 
-                  className="flex-1 bg-slate-700/50 border-slate-600 text-white placeholder-slate-400"
-                />
-                <Button className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600">
-                  Send
-                </Button>
+              <div className="text-sm text-slate-300">
+                <div>• Real-time multiplayer connection: {connected ? '🟢 Active' : '🔴 Inactive'}</div>
+                <div>• Players ready: {currentRoom.players.filter(p => p.ready).length}/{currentRoom.players.length}</div>
+                <div>• WebSocket status: {connected ? 'Connected' : 'Disconnected'}</div>
               </div>
             </CardContent>
           </Card>
@@ -316,7 +379,7 @@ const GameLobby = ({ onStartGame, onJoinGame, gameMode, setGameMode }) => {
             <p className="text-2xl text-purple-200 font-light">Premium Edition</p>
             <Sparkles className="w-6 h-6 text-purple-400" />
           </div>
-          <p className="text-lg text-slate-300">Experience the luxury of Indian states and cities</p>
+          <p className="text-lg text-slate-300">Experience real-time multiplayer with Indian states and cities</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -377,14 +440,14 @@ const GameLobby = ({ onStartGame, onJoinGame, gameMode, setGameMode }) => {
 
         <Card className="mt-12 bg-gradient-to-br from-slate-800/80 to-purple-900/80 border-amber-500/30 backdrop-blur-sm shadow-2xl">
           <CardHeader>
-            <CardTitle className="text-amber-100 text-2xl font-bold text-center">Premium Features</CardTitle>
+            <CardTitle className="text-amber-100 text-2xl font-bold text-center">Premium Real-Time Features</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
               <div className="space-y-3">
                 <div className="text-4xl">🎲</div>
-                <div className="text-lg font-bold text-white">Animated Dice</div>
-                <div className="text-sm text-slate-300">Realistic rolling physics</div>
+                <div className="text-lg font-bold text-white">Live Dice Rolling</div>
+                <div className="text-sm text-slate-300">Real-time synchronized gameplay</div>
               </div>
               <div className="space-y-3">
                 <div className="text-4xl">🏰</div>
@@ -393,13 +456,13 @@ const GameLobby = ({ onStartGame, onJoinGame, gameMode, setGameMode }) => {
               </div>
               <div className="space-y-3">
                 <div className="text-4xl">🤝</div>
-                <div className="text-lg font-bold text-white">Smart Trading</div>
-                <div className="text-sm text-slate-300">Advanced negotiation system</div>
+                <div className="text-lg font-bold text-white">Live Trading</div>
+                <div className="text-sm text-slate-300">Real-time negotiations</div>
               </div>
               <div className="space-y-3">
-                <div className="text-4xl">🎭</div>
-                <div className="text-lg font-bold text-white">Cultural Cards</div>
-                <div className="text-sm text-slate-300">Authentic Indian themes</div>
+                <div className="text-4xl">🌐</div>
+                <div className="text-lg font-bold text-white">Multiplayer</div>
+                <div className="text-sm text-slate-300">Up to 6 players online</div>
               </div>
             </div>
           </CardContent>
